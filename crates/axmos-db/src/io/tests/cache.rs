@@ -56,6 +56,35 @@ fn test_cache_insert_get(capacity: usize) {
     assert_get_all(&mut cache, &inserted);
 }
 
+fn test_clock_algo_not_make_full_lap(capacity: usize) {
+    let mut cache = PageCache::with_capacity(capacity);
+    let inserted: Vec<PageId> = insert_pages_no_evict(&mut cache);
+    assert_eq!(cache.num_frames(), inserted.len(), "Invalid number of frames in the cache");
+     
+    // Insert more pages. Should not fail with OOM
+    // By inserting another batch of pages equal to the capacity, we force the internal eviction
+    // cursor to advance, reach the end of the buffer and wrap around.
+    let mut next_id = inserted.len() as PageId;
+
+    for _ in 0..capacity {
+
+        let (id, evicted) = insert_page(next_id, &mut cache, true);
+        assert!(evicted.is_some(), "Expected some eviction when cache is full");
+
+        assert!(cache.get(&id).is_some(), "Newly inserted page {} not found in cache", id);
+        next_id += 1;
+    }
+
+    assert_eq!(
+        cache.num_frames(),
+        capacity,
+        "Cache size exceeded capacity after evictions"
+
+        );
+
+}
+
+
 fn test_cache_eviction(capacity: usize) {
     let mut cache = PageCache::with_capacity(capacity);
     let inserted: Vec<PageId> = insert_pages_no_evict(&mut cache);
@@ -93,3 +122,4 @@ fn test_cache_clear(capacity: usize) {
 param_tests!(test_cache_insert_get, cap => [1, 2, 5, 10, 50], miri_safe);
 param_tests!(test_cache_eviction, cap => [1, 2, 5, 10], miri_safe);
 param_tests!(test_cache_clear, cap => [1, 5, 10, 50], miri_safe);
+param_tests!(test_clock_algo_not_make_full_lap, cap => [1, 2, 5, 10, 50], miri_safe);
