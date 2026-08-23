@@ -124,8 +124,13 @@ impl PageCache {
         };
 
         let mut found_victim = None;
+        let n = self.frames.len();
+
         // Attempt to iterate over all the frames.
-        while self.cursor <= self.frames.len() && found_victim.is_none() {
+        while self.cursor <= n && found_victim.is_none() {
+
+            if self.cursor >= n { self.cursor = 0; }
+
             if let Some((pid, frame)) = self.frames.get_index(self.cursor) {
                 if frame.is_free() {
                     self.stats.eviction();
