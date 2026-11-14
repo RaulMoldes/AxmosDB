@@ -56,13 +56,19 @@ impl<'a> FileOperations for Pager {
     where
         Self: Sized,
     {
-        let file = DBFile::open(&path)?;
+        let mut file = DBFile::open(&path)?;
         let block_size = FileSystem::block_size(&path)?;
+        let current_len = file.metadata()?.len();
+
+        if current_len < block_size as u64 {
+            file.set_len(block_size as u64)?;
+        }
         let cache = PageCache::with_capacity(DEFAULT_CACHE_SIZE);
         let dir = path.as_ref().parent().expect("Not a directory");
         let wal_path = dir.join("axmos.log");
+        println!("Creando el wal");
         let wal = WriteAheadLog::open(wal_path)?;
-
+        println!("Se crea el wal");
         let mut pager = Self {
             file,
             cache,

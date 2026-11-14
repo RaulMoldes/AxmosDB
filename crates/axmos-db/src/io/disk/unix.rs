@@ -12,7 +12,12 @@ use super::{FileSystem, FileSystemBlockSize, Open, OpenOptions};
 
 impl FileSystemBlockSize for FileSystem {
     fn block_size(path: impl AsRef<Path>) -> io::Result<usize> {
-        Ok(File::open(&path)?.metadata()?.blksize() as usize)
+        let file = File::open(&path)?;
+        let metadata = file.metadata()?;
+
+        let block_size = metadata.blksize() as usize;
+
+        Ok(block_size)
     }
 }
 

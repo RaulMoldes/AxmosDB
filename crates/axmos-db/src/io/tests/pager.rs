@@ -3,11 +3,7 @@ use crate::{
     DEFAULT_PAGE_SIZE, default_num_workers,
     io::{disk::FileOperations, pager::Pager},
     matrix_tests, param_tests,
-    storage::{
-        BtreeMetadata, BtreeOps,
-        cell::OwnedCell,
-        page::BtreePage,
-    },
+    storage::{BtreeMetadata, BtreeOps, cell::OwnedCell, page::BtreePage},
     types::PageId,
 };
 use std::io;
@@ -259,7 +255,6 @@ fn test_cache_hit_on_repeated_access() -> io::Result<()> {
 
     Ok(())
 }
-
 
 #[test]
 #[cfg_attr(miri, ignore)]

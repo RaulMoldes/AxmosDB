@@ -22,8 +22,6 @@ use crate::{
     types::DataTypeKind,
 };
 
-
-
 use tempfile::TempDir;
 
 /// Helper: Creates a test catalog with predefined tables
@@ -32,7 +30,6 @@ fn create_test_catalog(
     snapshot: &Snapshot,
     builder: &BtreeBuilder,
 ) -> SharedCatalog {
-
     let (meta_table_page, meta_index_page) = {
         let mut p = pager.write();
         let meta_table = p
