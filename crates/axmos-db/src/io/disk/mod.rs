@@ -131,6 +131,10 @@ impl DBFile {
         self.p.as_path()
     }
 
+    pub fn set_len(&mut self, size: u64) -> io::Result<()> {
+        self.f.set_len(size)
+    }
+
     pub fn metadata(&self) -> io::Result<Metadata> {
         self.f.metadata()
     }

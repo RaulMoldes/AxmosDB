@@ -2,7 +2,7 @@ use crate::{
     DBConfig, ObjectId,
     io::pager::{Pager, SharedPager},
     schema::base::{Column, Relation},
-    types::{PageId, DataTypeKind},
+    types::{DataTypeKind, PageId},
 };
 use std::path::PathBuf;
 use tempfile::TempDir;

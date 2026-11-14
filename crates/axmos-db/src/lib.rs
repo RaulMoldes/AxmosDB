@@ -42,7 +42,6 @@ pub use types::*;
 static GLOBAL: Jemalloc = Jemalloc;
 
 use crate::{
-
     io::{
         disk::FileOperations,
         logger::Begin,
@@ -357,7 +356,6 @@ impl Database {
         Ok(result)
     }
 
-
     /// Executes a SQL query and returns the result.
     pub fn explain(&self, sql: &str) -> DatabaseResult<String> {
         let sql = sql.to_string();
@@ -446,7 +444,6 @@ impl Database {
     pub fn coordinator(&self) -> &TransactionCoordinator {
         &self.coordinator
     }
-
 
     /// Runs ANALYZE to update table statistics.
     pub fn analyze(&self, sample_rate: f64, max_sample_rows: usize) -> DatabaseResult<()> {

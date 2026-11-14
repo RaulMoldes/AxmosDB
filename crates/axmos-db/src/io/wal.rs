@@ -45,9 +45,15 @@ impl FileOperations for WriteAheadLog {
 
     fn open(path: impl AsRef<Path>) -> io::Result<Self> {
         let mut file = DBFile::open(&path)?;
-        let fs_block_size = FileSystem::block_size(&path)?;
-        let default_block_size = WAL_BLOCK_SIZE.next_multiple_of(fs_block_size);
 
+        let fs_block_size = FileSystem::block_size(&path)?;
+
+        let default_block_size = WAL_BLOCK_SIZE.next_multiple_of(fs_block_size);
+        let current_len = file.metadata()?.len();
+
+        if current_len < default_block_size as u64 {
+            file.set_len(default_block_size as u64)?;
+        }
         // Read block 0 (global header)
         let mut header_buf: BlockZero = BlockZero::new(default_block_size);
         file.seek(SeekFrom::Start(0))?;

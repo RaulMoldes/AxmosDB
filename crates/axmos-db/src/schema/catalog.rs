@@ -6,7 +6,7 @@ use crate::{
     multithreading::coordinator::Snapshot,
     runtime::{RuntimeError, context::TransactionLogger},
     schema::{Schema, base::SchemaError},
-    storage::tuple::{Tuple, TupleBuilder, TupleError, TupleReader,Row,  TupleRef},
+    storage::tuple::{Row, Tuple, TupleBuilder, TupleError, TupleReader, TupleRef},
     tree::{
         accessor::BtreePagePosition,
         bplustree::{BtreeError, SearchResult},
@@ -537,7 +537,7 @@ impl Catalog {
 
         // First, deallocate the relation.
         // Deallocate the relation.
-      {
+        {
             let mut tree = builder.build_tree_mut(rel.root());
             tree.dealloc()?;
         }
@@ -565,16 +565,17 @@ impl Catalog {
                 if let Some(layout) = tuple_reader.parse_for_snapshot(bytes, &snapshot)? {
                     let tuple_ref = TupleRef::new(bytes, layout);
                     let row = tuple_ref.to_row_with(&schema)?;
-                    Ok::<Option<(Tuple, Row)>, TupleError>(Some((Tuple::from_slice_unchecked(bytes)?, row)))
+                    Ok::<Option<(Tuple, Row)>, TupleError>(Some((
+                        Tuple::from_slice_unchecked(bytes)?,
+                        row,
+                    )))
                 } else {
                     Ok(None)
                 }
             })??
-        })
-        else {
-            return Ok(())
+        }) else {
+            return Ok(());
         };
-
 
         existing_tuple.delete(snapshot.xid())?;
 
@@ -601,16 +602,17 @@ impl Catalog {
                 if let Some(layout) = tuple_reader.parse_for_snapshot(bytes, &snapshot)? {
                     let tuple_ref = TupleRef::new(bytes, layout);
                     let row = tuple_ref.to_row_with(&schema)?;
-                    Ok::<Option<(Tuple, Row)>, TupleError>(Some((Tuple::from_slice_unchecked(bytes)?, row)))
+                    Ok::<Option<(Tuple, Row)>, TupleError>(Some((
+                        Tuple::from_slice_unchecked(bytes)?,
+                        row,
+                    )))
                 } else {
                     Ok(None)
                 }
             })??
-        })
-        else {
-            return Ok(())
+        }) else {
+            return Ok(());
         };
-
 
         existing_tuple.delete(snapshot.xid())?;
 

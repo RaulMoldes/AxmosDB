@@ -56,13 +56,29 @@ impl<'a> FileOperations for Pager {
     where
         Self: Sized,
     {
-        let file = DBFile::open(&path)?;
+        let mut file = DBFile::open(&path)?;
         let block_size = FileSystem::block_size(&path)?;
+        let current_len = file.metadata()?.len();
+
+        // This is a workaround. 
+        // In some filesystems (specially on in memory filesystems),
+        // the use of transparent huge pages (THP) is enabled based on the size of the file.
+        // When the file is bigger than a certain threshold, the retrieved value from the libc-api `st_blksize` will change.
+        // This can result in an error when attempting to read the header of the database, 
+        // For instance, if st_blk_size is 2MiB (size of a huge page) and the file is only 40MiB, we will receive and EoFError.
+        // This way, I ensure the file has enough space allocated in order for the first read to succeed, and we are able to read the header of the db properly.
+        // It comes at a cost, of course, because for the example of a 40KiB file we are using 2MiB of memory at once.
+        // Anyway this is fixed later because we rely on the page size that is persisted on the database header, so subsequent reads will not have this issue.
+        // the proper fix still needs to be tested.
+        if current_len < block_size as u64 {
+            file.set_len(block_size as u64)?;
+        }
         let cache = PageCache::with_capacity(DEFAULT_CACHE_SIZE);
         let dir = path.as_ref().parent().expect("Not a directory");
         let wal_path = dir.join("axmos.log");
+        println!("Creando el wal");
         let wal = WriteAheadLog::open(wal_path)?;
-
+        println!("Se crea el wal");
         let mut pager = Self {
             file,
             cache,

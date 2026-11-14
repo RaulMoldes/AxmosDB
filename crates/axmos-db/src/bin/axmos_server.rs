@@ -9,7 +9,7 @@ use axmosdb::{
 use std::{
     env,
     io::{BufReader, BufWriter},
-    net::{TcpListener, TcpStream, SocketAddr},
+    net::{SocketAddr, TcpListener, TcpStream},
     path::PathBuf,
     process,
     sync::{
@@ -258,7 +258,10 @@ impl Server {
             }
         }
 
-        println!("Waiting for {} client(s) to disconnect...", client_handles.len());
+        println!(
+            "Waiting for {} client(s) to disconnect...",
+            client_handles.len()
+        );
         for handle in client_handles {
             let _ = handle.join();
         }
@@ -339,9 +342,10 @@ fn process_request(
         Request::Sql(sql) => handle_sql(state, sql, ctx),
         Request::Explain(sql) => handle_explain(state, sql),
         Request::Vacuum => handle_vacuum(state),
-        Request::Analyze { sample_rate, max_sample_rows } => {
-            handle_analyze(state, sample_rate, max_sample_rows)
-        }
+        Request::Analyze {
+            sample_rate,
+            max_sample_rows,
+        } => handle_analyze(state, sample_rate, max_sample_rows),
         Request::Begin => handle_begin(state, ctx),
         Request::Commit => handle_commit(ctx),
         Request::Rollback => handle_rollback(ctx),
